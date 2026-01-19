@@ -7,9 +7,7 @@
       "entryFile": "functions/index.ts",
       "path": "functions/index.js",
       "allowNetworks": [
-        "api.contentful.com",
-        "game-service.ballys.whitehatgaming.com",
-        "game-service.ballys-can.whitehatgaming.com"
+        "api.contentful.com"
       ],
       "accepts": [
         "appaction.call"

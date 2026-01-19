@@ -1,93 +1,67 @@
-# Live Visibility Handler App
+# Game Metadata Sync App
 
 ## Overview
-Live Visibility Handler is a custom Contentful app whose primary job is to give editors a safe switch for hiding or showing `siteGameV2` entries on production (“live”) environments. The project bundles a minimal React configuration screen and a pair of Contentful App Action functions that update the `liveHidden` field on targeted entries, so editors can control visibility without touching raw data structures.
+Game Metadata Sync is a custom Contentful app that keeps `gameV2` and `siteGameV2` entries aligned with metadata from external gaming platforms (e.g., White Hat). Inside Contentful it offers:
+- An **App Configuration** screen where admins store primary/secondary API hosts per jurisdiction.
+- A **Page extension** for operations teams to scan ventures, create missing entries, and update outdated ones in bulk.
+- An **Entry sidebar** button that re-syncs or resets a single site game on demand via an App Action.
 
-## Tech Stack
-- **Framework & Tooling:** React 18 with Vite, TypeScript, Vitest for unit testing
-- **Contentful SDKs:** `@contentful/app-sdk`, `@contentful/react-apps-toolkit`, Forma 36 UI components
-- **Serverless Functions:** Contentful App Action functions written with `@contentful/node-apps-toolkit` and the `contentful-management` client
+## Architecture
+| Layer | Responsibility | Key Files |
+| --- | --- | --- |
+| Location router | Chooses which React component to render for each Contentful location. | `src/index.tsx` |
+| Config UI | Manages installation parameters (primary/secondary API hosts) and default values sourced from the app definition. | `src/locations/ConfigScreen.tsx` |
+| Operations page | Loads ventures, fetches Contentful entries & external games, filters missing/outdated content, and runs create/update actions. | `src/locations/Page.tsx`, `src/hooks/useGamesContent.ts`, `src/utils/filterContent.ts`, `src/utils/entryBuilder.ts` |
+| Entry sidebar | Fetches linked entries for the current site game and triggers the `gameMetadataSyncAction` App Action. | `src/locations/Sidebar.tsx`, `src/hooks/useSidebarConfig.ts`, `src/hooks/useSyncAction.ts` |
+| Serverless App Action | Calls the upstream metadata API, checks freshness, and updates both game and site game entries. | `functions/game-metadata-sync-action-handler.ts`, `functions/apis/externalGameMetadataApi.ts`, `functions/utils/*` |
 
-## How the project works
-1. **Frontend app:** The UI renders inside Contentful’s App configuration location. It is powered by React and Forma 36 components, and is bootstrapped via `SDKProvider` so it can read/write installation parameters and respond to the host environment.
-2. **App Action functions:** Two serverless handlers live under `functions/`:
-   - `enableLiveHiddenActionHandler` sets `liveHidden` to `true` for the requested entries.
-   - `disableLiveHiddenActionHandler` sets `liveHidden` to `false` for the requested entries.
-
-   Both functions receive an App Action payload with `entryIds`, fetch the matching `siteGameV2` entries via the Contentful Management API, mutate the `liveHidden` field in the default locale, and persist the updates.
-3. **Manifest & actions:** `contentful-app-manifest.json` wires the app actions (`hideOnLive` and `showOnLive`) to those functions, so they can be invoked from entry actions or other workflows inside Contentful.
-
-## Project architecture
-```
-workspace/
-├── src/                      # React app served inside Contentful
-│   ├── App.tsx               # Location resolver, currently only config screen
-│   ├── components/           # Shared UI pieces (e.g., localhost warning)
-│   ├── locations/            # Location-specific screens (ConfigScreen)
-│   └── index.tsx             # Entry point, SDKProvider bootstrap
-├── functions/                # App Action serverless handlers
-│   ├── enableLiveHiddenActionHandler.ts
-│   └── disableLiveHiddenActionHandler.ts
-├── contentful-app-manifest.json  # Declares app actions and function bundles
-├── package.json              # Scripts for dev server, build, upload, actions
-└── yarn.lock / node_modules  # Dependencies
-```
+## Prerequisites
+- Node.js 18+ and npm/yarn.
+- Access to a Contentful space with the `gameV2`, `siteGameV2`, `venture`, and `jurisdiction` content types plus an app definition with page, sidebar, and app-config locations enabled.
+- External metadata endpoints reachable from the Contentful environment.
+- Environment variables for CLI deployments: `CONTENTFUL_ORG_ID`, `CONTENTFUL_APP_DEF_ID`, `CONTENTFUL_ACCESS_TOKEN`.
 
 ## Installation
-1. **Prerequisites**
-   - Node.js 18+
-   - Yarn or npm
-   - Access to a Contentful organization where you can create custom apps and App Actions
-2. **Install dependencies**
-   ```bash
-   yarn install
-   # or
-   npm install
-   ```
-
-## Local development
 ```bash
-yarn dev
+npm install
 # or
-npm run dev
+yarn install
 ```
-- Starts the Vite dev server (default port 5173).
-- When opened outside the Contentful web app, the UI shows a warning screen because Contentful features require the host environment.
-- To test inside Contentful, use `contentful-app-scripts create-app-definition` and `add-locations` (already wired via package.json) to register the app and point the location URL to your dev server.
+
+## Running locally
+- **Dev server:** `npm run dev` starts Vite with Contentful’s SDK provider, showing a localhost warning unless rendered inside Contentful.
+- **Tests:** `npm run test` executes Vitest (no suites included yet).
+- **Functions build:** `npm run build:functions` packages the `functions/` bundle (used automatically inside `npm run build`).
+
+To see the app inside Contentful while developing, run `npm run dev`, expose the URL via `ngrok` or `contentful tunnel`, and point the app definition’s locations to the tunnel URL.
 
 ## Building & deploying
-```bash
-yarn build
-```
-- Runs `vite build` for the frontend and compiles the functions via `build:functions`.
-- Outputs a production-ready bundle under `dist/` (frontend) and `functions/*.js`.
+1. **Build frontend + functions:** `npm run build`.
+2. **Upload bundle manually:** `npm run upload` (prompts for org/app IDs).
+3. **CI/CD upload:** `npm run upload-ci` with the required environment variables for non-interactive deployments.
+4. **App definition helpers:** `npm run create-app-definition`, `npm run add-locations`, and `npm run upsert-actions` streamline configuring the app and registering the `gameMetadataSyncAction`.
 
-Upload the bundle and function code to Contentful:
-```bash
-yarn upload
-```
-For CI usage, set `CONTENTFUL_ORG_ID`, `CONTENTFUL_APP_DEF_ID`, and `CONTENTFUL_ACCESS_TOKEN`, then run `yarn upload-ci` or `yarn upsert-actions-ci` to register/update the App Actions programmatically.
+## Usage
+### 1. Configure API hosts
+From the Contentful Apps section, open the app’s configuration screen and provide:
+- `Game Metadata External Source API Host` (primary White Hat host).
+- Optional `Secondary External Source API Host` (used for CA-ON). Defaults display beneath each field if defined on the app definition.
 
-## Usage inside Contentful
-1. Install the app into a space/environment via the Contentful web app.
-2. Open any `siteGameV2` entry. In the actions menu you’ll see:
-   - **Hide SiteGame On Live** (`hideOnLive`): calls `enableLiveHiddenActionHandler` to set `liveHidden` to `true`.
-   - **Show SiteGame On Live** (`showOnLive`): calls `disableLiveHiddenActionHandler` to set `liveHidden` to `false`.
-3. Each action expects an `entryIds` payload; when invoked from entry actions Contentful passes the current entry ID automatically.
+### 2. Scan & manage game metadata
+Open the Page extension:
+1. Select a venture; the app computes jurisdiction, brand, and country using `setWhiteHatParams` and the stored hosts.
+2. Click **Missing Game Contents** to compare external games with existing `gameV2`/`siteGameV2` entries. The view lists launch codes and entry IDs needing creation.
+3. Click **Outdated Game Contents** to find entries whose Contentful `updatedAt` precedes the upstream `updatedAt`.
+4. Use **Create Missing Game Contents** to bulk-create `gameV2` and linked `siteGameV2` entries with payloads built from the external metadata and detailed API calls. The hook debounces API requests, checks for duplicates, and populates fields like stakes, platform visibility, venture links, and platform config.
+5. Use **Update Outdated Games Contents** to fetch fresh details, update both entries, and clear the outdated list.
 
-## Testing
-Run unit tests (Vitest + React Testing Library):
-```bash
-yarn test
-```
+### 3. Entry-level sync/reset
+From a `siteGameV2` entry sidebar:
+1. Click **CHECK & SYNC New Updates** to run the `gameMetadataSyncAction`, which fetches the latest metadata, compares timestamps, and updates both the site game and linked game when needed.
+2. Click **RESTORE Active Data** to force a reset even if timestamps look current (passes `doReset=true`). Feedback appears via Contentful notifications.
 
 ## Contributing
-1. Fork or clone the repository.
-2. Create a feature branch and implement your changes.
-3. Run `yarn test` and `yarn build` to ensure quality.
-4. Open a pull request describing the change and any Contentful configuration updates (new actions, permissions, etc.).
-
-## Additional resources
-- [Contentful App Framework docs](https://www.contentful.com/developers/docs/extensibility/app-framework/)
-- [Working with App Action functions](https://www.contentful.com/developers/docs/extensibility/app-framework/working-with-functions/)
-- [Forma 36 design system](https://f36.contentful.com/)
+1. Fork and clone this repository.
+2. Create a branch for your change.
+3. Run `npm run dev` for frontend changes and `npm run build:functions` after editing `functions/`.
+4. Submit a PR describing the feature/fix, and ensure deployments are handled via the Contentful CLI scripts above.
