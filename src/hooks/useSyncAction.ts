@@ -19,7 +19,7 @@ function useSyncAction() {
                 {
                     parameters: {
                         queryParams: JSON.stringify({
-                            basicToken: 'xxx'
+                            bearerToken: 'xxx'
                         }),
                     },
                 } as CreateAppActionCallProps

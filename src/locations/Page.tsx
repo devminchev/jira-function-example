@@ -15,8 +15,8 @@ const Page = () => {
     const fetchJiraData = async () => {
         setIsLoading(true);
         try {
-            // const { data } = await axios.get(`${parameters.installation.productionApiDomain}/jira/issues`, {
-            //     headers: { Authorization: `Basic xxx` },
+            // const { data } = await axios.get(`https://jira.gamesys.co.uk/rest/api/2/search`, {
+            //     headers: { Authorization: `Bearer xxx` },
             //     params: { site: siteMap(selectedVenture.name), jackpotId: selectedJackpot.id }
             // });
 

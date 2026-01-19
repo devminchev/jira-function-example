@@ -13,11 +13,11 @@ export const fetchJiraBoardActionHandler: FunctionEventHandler<FunctionTypeEnum.
   console.log('params : ', params);
   console.log('query string : ', queryString);
   try {
-    const apiBaseUrl = 'https://' + appInstallationParameters['externalApiBaseUrl'];
-    const res = await fetch(`${apiBaseUrl}/api/}`, {
+    const apiBaseUrl = 'https://jira.gamesys.co.uk/rest/api/2/search';
+    const res = await fetch(`${apiBaseUrl}/}`, {
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Basic xxx`
+        Authorization: `Bearer xxx`
       }
     });
     if (!res.ok) {
