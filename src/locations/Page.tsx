@@ -16,7 +16,7 @@ const Page = () => {
         setIsLoading(true);
         try {
             // const { data } = await axios.get(`${parameters.installation.productionApiDomain}/jira/issues`, {
-            //     headers: { Authorization: `Basic MTI3ODE3NzE2ODk0OlI7TOl4Ksn9eiEDs4g6aBeF0nTE` },
+            //     headers: { Authorization: `Basic xxx` },
             //     params: { site: siteMap(selectedVenture.name), jackpotId: selectedJackpot.id }
             // });
 

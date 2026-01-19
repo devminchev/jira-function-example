@@ -24,8 +24,10 @@ function useSyncAction() {
                     },
                 } as CreateAppActionCallProps
             );
+            console.log('action call response : ', actionCallResponse);
             const response = JSON.parse(actionCallResponse.response.body);
 
+            console.log('action call parsed response : ', response);
             if (!response.success) {
                 throw new Error(response.error);
             };

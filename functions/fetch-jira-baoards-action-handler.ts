@@ -33,7 +33,7 @@ export const fetchJiraBoardActionHandler: FunctionEventHandler<FunctionTypeEnum.
     const res = await fetch(`${apiBaseUrl}/api/}`, {
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Basic MTI3ODE3NzE2ODk0OlI7TOl4Ksn9eiEDs4g6aBeF0nTE`
+        Authorization: `Basic xxx`
       }
     });
     if (!res.ok) {
