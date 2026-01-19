@@ -1,0 +1,28 @@
+{
+  "functions": [
+    {
+      "id": "jiraFetchBoardData",
+      "name": "Jira Fetch Board Data",
+      "description": "Fetches Jira board data via REST using Basic Auth",
+      "path": "functions/jiraFetchBoardData.js",
+      "entryFile": "functions/jiraFetchBoardData.js",
+      "allowNetworks": [
+        "api.contentful.com",
+        "jira.yourcompany.com:443"
+      ],
+      "accepts": [
+        "appaction.call"
+      ]
+    }
+  ],
+  "actions": [
+    {
+      "id": "jiraFetchAction",
+      "name": "Jira Fetch Board Data Action",
+      "type": "function-invocation",
+      "functionId": "jiraFetchBoardData",
+      "category": "Custom",
+      "parameters": []
+    }
+  ]
+}
