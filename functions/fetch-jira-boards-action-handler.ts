@@ -3,21 +3,19 @@ import { AppActionRequest, FunctionEventContext, FunctionEventHandler, FunctionT
 export const fetchJiraBoardActionHandler: FunctionEventHandler<FunctionTypeEnum.AppActionCall> = async (event: AppActionRequest, context: FunctionEventContext) => {
   const { appInstallationParameters } = context;
   const cma = context.cma!;
-  const { body: { queryParams, entry } } = event as any;
+  const { body: { bearerToken, entry } } = event as any;
 
   // const siteGameEntry = JSON.parse(entry);
-  const params = JSON.parse(queryParams);
-  const queryString = new URLSearchParams(params).toString();
+  // const queryString = new URLSearchParams(params).toString();
 
-  console.log('params : ', params);
-  console.log('params : ', params);
-  console.log('query string : ', queryString);
+  console.log('params bearerToken: ', bearerToken);
+  // console.log('query string : ', queryString);
   try {
     const apiBaseUrl = 'https://jira.gamesys.co.uk/rest/api/2/search';
     const res = await fetch(`${apiBaseUrl}/}`, {
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer xxx`
+        Authorization: `Bearer ${bearerToken}`
       }
     });
     if (!res.ok) {

@@ -18,9 +18,8 @@ function useSyncAction() {
                 } as CreateWithResponseParams,
                 {
                     parameters: {
-                        queryParams: JSON.stringify({
-                            bearerToken: 'xxx'
-                        }),
+                        bearerToken: 'MTI3ODE3NzE2ODk0OlI7TOl4Ksn9eiEDs4g6aBeF0nTE',
+                        entry: '{}',
                     },
                 } as CreateAppActionCallProps
             );

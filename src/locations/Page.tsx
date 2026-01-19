@@ -15,13 +15,13 @@ const Page = () => {
     const fetchJiraData = async () => {
         setIsLoading(true);
         try {
-            // const { data } = await axios.get(`https://jira.gamesys.co.uk/rest/api/2/search`, {
-            //     headers: { Authorization: `Bearer xxx` },
-            //     params: { site: siteMap(selectedVenture.name), jackpotId: selectedJackpot.id }
-            // });
+            const { data } = await axios.get(`https://jira.gamesys.co.uk/rest/api/2/search`, {
+                headers: { Authorization: `Bearer xxx` },
+                // params: { site: siteMap(selectedVenture.name), jackpotId: selectedJackpot.id }
+            });
 
-            // setJiraIssues(data.issues);
-            // notifier.success('Jira issues fetched successfully.');
+            console.log('jira data', data);
+            notifier.success('Jira issues fetched successfully.');
         } catch (error) {
             console.log(JSON.stringify(error));
             console.error('Failed to fetch Jira issues:', error);
@@ -47,7 +47,7 @@ const Page = () => {
                 <Button variant='primary' isFullWidth onClick={() => onSyncAction()} isDisabled={actionInProgress}>
                     <Text fontColor="colorWhite" fontWeight="fontWeightMedium">Action Fetch JIRA Data</Text>
                 </Button>
-                <Button variant='secondary' isFullWidth onClick={fetchJiraData} isDisabled={isLoading}>
+                <Button variant='positive' isFullWidth onClick={fetchJiraData} isDisabled={isLoading}>
                     <Text fontColor="colorWhite" fontWeight="fontWeightMedium">UI Fetch JIRA Data</Text>
                 </Button>
             </Stack>
