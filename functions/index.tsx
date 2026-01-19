@@ -1,5 +1,5 @@
 import { FunctionEventHandler } from '@contentful/node-apps-toolkit';
-import { fetchJiraBoardActionHandler } from "./fetch-jira-baoards-action-handler";
+import { fetchJiraBoardActionHandler } from "./fetch-jira-boards-action-handler";
 
 export const handler: FunctionEventHandler = async (event, context) => {
   switch (event.type) {
