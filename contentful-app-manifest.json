@@ -7,7 +7,8 @@
       "entryFile": "functions/index.ts",
       "path": "functions/index.js",
       "allowNetworks": [
-        "api.contentful.com"
+        "api.contentful.com",
+        "jira.gamesys.co.uk:443"
       ],
       "accepts": [
         "appaction.call"

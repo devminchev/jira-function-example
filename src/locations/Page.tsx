@@ -4,6 +4,7 @@ import { useSDK } from '@contentful/react-apps-toolkit';
 import { Badge, Button, Checkbox, Flex, FormControl, Heading, List, MenuDivider, Select, Stack, Text } from '@contentful/f36-components';
 import useSyncAction from '../hooks/useSyncAction';
 
+const jql = `project = "GRA" AND status = "Game for Review" AND issuetype = "Game"`;
 
 const Page = () => {
     const { cma: { entry: contentfulClient }, locales: { default: spaceLocale }, notifier, parameters } = useSDK();
@@ -15,9 +16,18 @@ const Page = () => {
     const fetchJiraData = async () => {
         setIsLoading(true);
         try {
+
             const { data } = await axios.get(`https://jira.gamesys.co.uk/rest/api/2/search`, {
-                headers: { Authorization: `Bearer xxx` },
-                // params: { site: siteMap(selectedVenture.name), jackpotId: selectedJackpot.id }
+                headers: { Authorization: `Bearer MTI3ODE3NzE2ODk0OlI7TOl4Ksn9eiEDs4g6aBeF0nTE` },
+                params: {
+                    maxResults: 1000,
+                    jql,
+                    fields: [
+                        "summary",
+                        "status"
+                    ].join(","),
+                    timeout: 10000,
+                }
             });
 
             console.log('jira data', data);
